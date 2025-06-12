@@ -262,3 +262,6 @@ gradle-app.setting
 
 expo-env.d.ts
 # @end expo-cli
+
+/.vscode
+.vscode/settings.json
