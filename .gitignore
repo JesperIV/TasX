@@ -40,7 +40,6 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-
 # Bundle artifact
 *.jsbundle
 
@@ -53,3 +52,6 @@ yarn-error.log
 
 # testing
 /coverage
+
+# Expo
+.expo/
