@@ -1,0 +1,165 @@
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, Switch, Button, StyleSheet } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTasks } from '../services/TaskContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
+
+const TaskDetailsScreen: React.FC = () => {
+    const route = useRoute();
+    const navigation = useNavigation();
+
+    const { id } = route.params as { id: string };  // get task ID from route params
+    const { tasks, setTasks } = useTasks();
+    const task = tasks.find(t => t.id === id);
+
+    const [title, setTitle] = useState(task?.title || '');
+    const [description, setDescription] = useState(task?.description || '');
+    const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate);
+    const [repeat, setRepeat] = useState<"never" | "daily" | "weekly" | "monthly">(task?.repeat || 'never');
+    const [alertEnabled, setAlertEnabled] = useState(task?.alert ?? false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const saveTask = () => {
+        setTasks(prevTasks => prevTasks.map(t =>
+            t.id === id
+            ? { ...t, title, description, dueDate, repeat, alert: alertEnabled }
+            : t
+        ));
+        navigation.goBack();
+    };
+
+    const deleteTask = () => {
+        setTasks(prevTasks => prevTasks.filter(t => t.id !== id));
+        navigation.goBack();
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+                value={title}
+                onChangeText={setTitle}
+                style={styles.input}
+                placeholder="Task Title"
+            />
+
+            <Text style={styles.label}>description</Text>
+            <TextInput
+                value={description}
+                onChangeText={setDescription}
+                style={styles.input}
+                placeholder="Task Description"
+                multiline
+            />
+
+            <Text style={styles.label}>Due Date</Text>
+            <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+            >
+                <Text style={styles.dateButtonText}>
+                    {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date'}
+                </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+                <DateTimePicker
+                    mode="date"
+                    value={dueDate || new Date()}
+                    onChange={(event, selectedDate) => {
+                        setShowDatePicker(false);
+                        if (selectedDate) {
+                            setDueDate(selectedDate);
+                        };
+                    }}
+                    display="spinner"
+                />
+            )}
+
+            <Text style={styles.label}>Repeat</Text>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={repeat}
+                    onValueChange={(itemValue) => setRepeat(itemValue)}
+                    mode="dropdown"
+                >
+                    <Picker.Item label="Never" value="never" />
+                    <Picker.Item label="Daily" value="daily" />
+                    <Picker.Item label="Weekly" value="weekly" />
+                    <Picker.Item label="Monthly" value="monthly" />
+                </Picker>
+            </View>
+
+            <View style={styles.toggleRow}>
+                <Text style={styles.label}>Alert</Text>
+                <Switch
+                    value={alertEnabled}
+                    onValueChange={setAlertEnabled}
+                    disabled={!dueDate}
+                />
+            </View>
+
+            <View style={styles.buttonRow}>
+                <Button title="Save" onPress={saveTask} />
+                <Button title="Delete" onPress={deleteTask} color="#d9534f" />
+            </View>
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f8f9fb",
+        padding: 20,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 5,
+        marginTop: 10,
+        color: "#333",
+        fontWeight: "600",
+    },
+    input: {
+        backgroundColor: "#fff",
+        padding: 10,
+        borderRadius: 8,
+        fontSize: 16,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+    },
+    textArea: {
+        height: 80,
+        textAlignVertical: "top",
+    },
+    dateButton: {
+        backgroundColor: "#fff",
+        padding: 12,
+        borderRadius: 8,
+        alignItems: "center",
+    },
+    dateButtonText: {
+        fontSize: 16,
+        color: "#007aff",
+    },
+    pickerContainer: {
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        overflow: "hidden",
+    },
+    toggleRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginVertical: 10,
+    },
+    buttonRow: {
+        marginTop: 20,
+        flexDirection: "row",
+        justifyContent: "space-around",
+    },
+});
+
+export default TaskDetailsScreen;
