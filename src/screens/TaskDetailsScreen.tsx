@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Switch, Button, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTasks } from '../services/TaskContext';
@@ -34,9 +34,19 @@ const TaskDetailsScreen: React.FC = () => {
         navigation.goBack();
     };
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={saveTask}>
+                    <Text style={styles.headerButtonText}>Save</Text>
+                </TouchableOpacity>
+            )
+        })
+    }, [navigation, saveTask]);
+
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>Title<Text style={{color: 'red'}}> *</Text></Text>
             <TextInput
                 value={title}
                 onChangeText={setTitle}
@@ -76,7 +86,7 @@ const TaskDetailsScreen: React.FC = () => {
                 />
             )}
 
-            <Text style={styles.label}>Repeat</Text>
+            <Text style={styles.label}>Repeat<Text style={{color: 'red'}}> *</Text></Text>
             <View style={styles.pickerContainer}>
                 <Picker
                     selectedValue={repeat}
@@ -91,7 +101,7 @@ const TaskDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.toggleRow}>
-                <Text style={styles.label}>Alert</Text>
+                <Text style={styles.label}>Alerts</Text>
                 <Switch
                     value={alertEnabled}
                     onValueChange={setAlertEnabled}
@@ -100,8 +110,12 @@ const TaskDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.buttonRow}>
-                <Button title="Save" onPress={saveTask} />
-                <Button title="Delete" onPress={deleteTask} color="#d9534f" />
+                <TouchableOpacity onPress={saveTask} style={styles.button}>
+                    <Text style={styles.buttonText}>SAVE</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={deleteTask} style={[styles.button, { backgroundColor: "#d9534f" }]}>
+                    <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -112,6 +126,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#f8f9fb",
         padding: 20,
+    },
+    headerButtonText: {
+        color: "#007aff",
+        fontSize: 16,
+        fontWeight: "600",
     },
     label: {
         fontSize: 16,
@@ -158,7 +177,21 @@ const styles = StyleSheet.create({
     buttonRow: {
         marginTop: 20,
         flexDirection: "row",
-        justifyContent: "space-around",
+        justifyContent: "space-between",
+    },
+    button: {
+        backgroundColor: "#007aff",
+        padding: 10,
+        borderRadius: 8,
+        alignItems: "center",
+        flex: 1,
+        marginHorizontal: 5,
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "600",
+        textTransform: "uppercase",
     },
 });
 

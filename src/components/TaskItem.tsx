@@ -16,12 +16,12 @@ const TaskItem: React.FC<Props> = ({ task, onToggle }) => {
     const navigation = useNavigation<NavigationProp>();
 
     return (
-        <View style={styles.taskItem}>
+        <View style={task.completed ? [styles.taskItem, styles.taskItemCompleted] : styles.taskItem}>
             <Checkbox 
                 value={task.completed}
                 onValueChange={() => onToggle(task.id)}
                 style={styles.checkbox}
-                color={task.completed ? "#34c759" : undefined}
+                color={task.completed ? "#007aff" : undefined}
             />
             <Text style={[styles.taskTitle, task.completed && styles.taskTextDone]}>{task.title}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Details', { taskId: task.id })}>
@@ -44,10 +44,10 @@ const styles = StyleSheet.create({
         padding: 12,
         marginBottom: 8,
         borderRadius: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 3,
+    },
+    taskItemCompleted: {
+        opacity: 0.5,
+        backgroundColor: "#f0f0f0",
     },
     checkbox: {
         marginRight: 10,
