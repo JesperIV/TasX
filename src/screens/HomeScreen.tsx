@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import Checkbox from 'expo-checkbox';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routeParameters';
 import { useTasks } from '../services/TaskContext';
 import { Task } from '../services/tasks';
+
+import TaskItem from '../components/TaskItem';
 
 const HomeScreen: React.FC = () => {
     type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -21,22 +22,9 @@ const HomeScreen: React.FC = () => {
         );
     };
 
-    const renderTaskItem = ({ item }: { item: Task }) => {
-        return (
-            <View style={styles.taskItem}>
-                <Checkbox 
-                    value={item.completed}
-                    onValueChange={() => toggleCompleted(item.id)}
-                    style={styles.checkbox}
-                    color={item.completed ? "#34c759" : undefined}
-                />
-                <Text style={[styles.taskTitle, item.completed && styles.taskTextDone]}>{item.title}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Details', { taskId: item.id })}>
-                    <Text style={styles.detailsButtonText}>Details</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    };
+    const renderTaskItem = ({ item }: { item: Task }) => (
+        <TaskItem task={item} onToggle={toggleCompleted} />
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -58,11 +46,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10
     },
-    taskTitle: {
-        flex: 1,
-        fontSize: 16,
-        color: "#333",
-    },
     header: {
         fontSize: 24,
         fontWeight: "600",
@@ -71,34 +54,6 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingBottom: 20
-    },
-    taskItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#ffffff",
-        padding: 12,
-        marginBottom: 8,
-        borderRadius: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 3,
-    },
-    checkbox: {
-        marginRight: 10,
-    },
-    taskText: {
-        fontSize: 16,
-        color: "#333",
-    },
-    taskTextDone: {
-        textDecorationLine: "line-through",
-        color: "#888"
-    },
-    detailsButtonText: {
-        color: "#007bff",
-        fontSize: 14,
-        fontWeight: "500",
     },
 });
 
