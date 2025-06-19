@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity } from
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Checkbox from 'expo-checkbox';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList } from '../navigation/routeParameters';
 import { useTasks } from '../services/TaskContext';
 import { Task } from '../services/tasks';
 
@@ -11,12 +11,26 @@ const HomeScreen: React.FC = () => {
     type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
     const navigation = useNavigation<NavigationProp>();
 
-    const { tasks } = useTasks();
+    const { tasks, setTasks } = useTasks();
+
+    const toggleCompleted = (id: string) => {
+        setTasks(prev =>
+            prev.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            )
+        );
+    };
 
     const renderTaskItem = ({ item }: { item: Task }) => {
         return (
             <View style={styles.taskItem}>
-                <Text style={styles.taskTitle}>{item.title}</Text>
+                <Checkbox 
+                    value={item.completed}
+                    onValueChange={() => toggleCompleted(item.id)}
+                    style={styles.checkbox}
+                    color={item.completed ? "#34c759" : undefined}
+                />
+                <Text style={[styles.taskTitle, item.completed && styles.taskTextDone]}>{item.title}</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Details', { taskId: item.id })}>
                     <Text style={styles.detailsButtonText}>Details</Text>
                 </TouchableOpacity>
@@ -31,7 +45,7 @@ const HomeScreen: React.FC = () => {
                 data={tasks}
                 renderItem={renderTaskItem}
                 keyExtractor={task => task.id}
-                // style={styles.list}
+                style={styles.list}
             />
         </SafeAreaView>
     );
