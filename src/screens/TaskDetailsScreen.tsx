@@ -127,6 +127,11 @@ const TaskDetailsScreen: React.FC = () => {
                     {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date'}
                 </Text>
             </TouchableOpacity>
+            <Button
+                title="Clear Date"
+                onPress={() => setDueDate(null)}
+                disabled={!dueDate}
+            />
             {showDatePicker && (
                 <DateTimePicker
                     mode="date"
@@ -151,6 +156,11 @@ const TaskDetailsScreen: React.FC = () => {
                             {dueTime ? dueTime : 'Set Due Time'}
                         </Text>
                     </TouchableOpacity>
+                    <Button
+                        title="Clear Time"
+                        onPress={() => setDueTime(undefined)}
+                        disabled={!dueTime}
+                    />
 
                     {showTimePicker && (
                         <DateTimePicker
