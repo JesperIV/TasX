@@ -7,6 +7,7 @@ import { useTasks } from '../services/TaskContext';
 import { Task } from '../services/tasks';
 
 import TaskItem from '../components/TaskItem';
+import FloatingButton from '../components/FloatingButton';
 
 const HomeScreen: React.FC = () => {
     type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -35,6 +36,7 @@ const HomeScreen: React.FC = () => {
                 keyExtractor={task => task.id}
                 style={styles.list}
             />
+            <FloatingButton onPress={() => navigation.navigate("Details", { taskId: "" })} />
         </SafeAreaView>
     );
 };

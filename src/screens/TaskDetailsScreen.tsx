@@ -4,14 +4,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTasks } from '../services/TaskContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import 'react-native-get-random-values';    // for uuidv4
+import { v4 as uuidv4 } from "uuid";
 
 const TaskDetailsScreen: React.FC = () => {
     const route = useRoute();
     const navigation = useNavigation();
 
-    const { id } = route.params as { id: string };  // get task ID from route params
+    const { id } = route.params as { id?: string };  // get task ID from route params
     const { tasks, setTasks } = useTasks();
     const task = tasks.find(t => t.id === id);
+    const isNew = !task;    // check if the task is new, otherwise it is being edited
 
     const [title, setTitle] = useState(task?.title || '');
     const [description, setDescription] = useState(task?.description || '');
@@ -21,11 +24,24 @@ const TaskDetailsScreen: React.FC = () => {
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const saveTask = () => {
-        setTasks(prevTasks => prevTasks.map(t =>
-            t.id === id
-            ? { ...t, title, description, dueDate, repeat, alert: alertEnabled }
-            : t
-        ));
+        if (isNew){
+            const newTask = {
+                id: uuidv4(),
+                title,
+                description,
+                dueDate,
+                repeat,
+                alert: alertEnabled,
+                completed: false,
+            };
+            setTasks(prevTasks => [...prevTasks, newTask]);
+        } else {
+            setTasks(prevTasks => prevTasks.map(t =>
+                t.id === id
+                ? { ...t, title, description, dueDate, repeat, alert: alertEnabled }
+                : t
+            ));
+        };
         navigation.goBack();
     };
 

@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Task } from './tasks';
+import { TaskStorageService } from './TaskStorageService';
 
 interface TaskContextType {
     tasks: Task[];
@@ -9,9 +10,18 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [tasks, setTasks] = useState<Task[]>([
-        { id: "1", title: "Example Task 1", description: "A hardcoded example task.", dueDate: new Date(), repeat: "never", alert: false, completed: false }, //  example task
-    ]);
+    const [tasks, setTasks] = useState<Task[]>([]);
+
+    // load tasks on mount
+    useEffect(() => {
+        TaskStorageService.loadTasks().then(setTasks);
+    }, []);
+
+    // save tasks on change
+    useEffect(() =>{
+        TaskStorageService.saveTasks(tasks);
+    }, [tasks]);
+
     return (
         <TaskContext.Provider value={{ tasks, setTasks }}>
             {children}
@@ -19,4 +29,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-export const useTasks = () => useContext(TaskContext)!;
+export const useTasks = () => {
+    const context = useContext(TaskContext);
+    if (!context) throw new Error("useTasks must be used within a TaskProvider");
+    return context;
+};
