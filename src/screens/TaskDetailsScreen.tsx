@@ -161,11 +161,13 @@ const TaskDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.buttonRow}>
+                {!isNew && (
+                    <TouchableOpacity onPress={deleteTask} style={[styles.button, { backgroundColor: "#d9534f" }]}>
+                        <Text style={styles.buttonText}>Delete</Text>
+                    </TouchableOpacity>
+                )}
                 <TouchableOpacity onPress={saveTask} style={styles.button}>
                     <Text style={styles.buttonText}>SAVE</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={deleteTask} style={[styles.button, { backgroundColor: "#d9534f" }]}>
-                    <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
             </View>
         </View>
