@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { Task } from './tasks';
+import { Task } from '../types/tasks';
 import { TaskStorageService } from './TaskStorageService';
 
 interface TaskContextType {

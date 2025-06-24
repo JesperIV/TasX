@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routeParameters';
 import { useTasks } from '../services/TaskContext';
-import { Task } from '../services/tasks';
+import { Task } from '../types/tasks';
 
 import TaskItem from '../components/TaskItem';
 import FloatingButton from '../components/FloatingButton';
