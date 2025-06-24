@@ -18,10 +18,12 @@ const TaskDetailsScreen: React.FC = () => {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [dueDate, setDueDate] = useState<Date | null>(null);
+    const [dueTime, setDueTime] = useState<string | undefined>();
     const [repeat, setRepeat] = useState<"never" | "daily" | "weekly" | "monthly">("never");
     const [alertEnabled, setAlertEnabled] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
     const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
@@ -31,7 +33,8 @@ const TaskDetailsScreen: React.FC = () => {
             if (task) {
                 setTitle(task.title);
                 setDescription(task.description!);
-                setDueDate(task.dueDate ? new Date(task.dueDate) : new Date());
+                setDueDate(task.dueDate ? new Date(task.dueDate) : null);
+                setDueTime(task.dueTime);
                 setRepeat(task.repeat || "never");
                 setAlertEnabled(task.alert || false);
                 setInitialized(true);
@@ -46,6 +49,7 @@ const TaskDetailsScreen: React.FC = () => {
                 title,
                 description,
                 dueDate,
+                dueTime,
                 repeat,
                 alert: alertEnabled,
                 completed: false,
@@ -54,7 +58,7 @@ const TaskDetailsScreen: React.FC = () => {
         } else {
             setTasks(prevTasks => prevTasks.map(t =>
                 t.id === id
-                ? { ...t, title, description, dueDate, repeat, alert: alertEnabled }
+                ? { ...t, title, description, dueDate, dueTime, repeat, alert: alertEnabled }
                 : t
             ));
         };
@@ -135,6 +139,36 @@ const TaskDetailsScreen: React.FC = () => {
                     }}
                     display="spinner"
                 />
+            )}
+            {dueDate && (
+                <>
+                    <Text style={styles.label}>Due Time</Text>
+                    <TouchableOpacity
+                        style={styles.dateButton}
+                        onPress={() => setShowTimePicker(true)}
+                    >
+                        <Text style={styles.dateButtonText}>
+                            {dueTime ? dueTime : 'Set Due Time'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {showTimePicker && (
+                        <DateTimePicker
+                            mode="time"
+                            value={dueDate || new Date()}
+                            onChange={(event, selectedDate) => {
+                                setShowTimePicker(false);
+                                if (selectedDate && event.type !== 'dismissed') {
+                                    const hours = selectedDate.getHours();
+                                    const minutes = selectedDate.getMinutes();
+                                    const timeStr = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+                                    setDueTime(timeStr);
+                                }
+                            }}
+                            display="spinner"
+                        />
+                    )}
+                </>
             )}
 
             <Text style={styles.label}>Repeat<Text style={{color: 'red'}}> *</Text></Text>
