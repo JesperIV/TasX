@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Switch, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Switch, Button, StyleSheet, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTasks } from '../services/TaskContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -62,8 +62,27 @@ const TaskDetailsScreen: React.FC = () => {
     };
 
     const deleteTask = () => {
-        setTasks(prevTasks => prevTasks.filter(t => t.id !== id));
-        navigation.goBack();
+        if (!id) return;
+
+        Alert.alert(
+            "Delete Task",
+            "Are you sure you want to delete this task?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        setTasks(prevTasks => prevTasks.filter(t => t.id !== id));
+                        navigation.goBack();
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     useLayoutEffect(() => {
