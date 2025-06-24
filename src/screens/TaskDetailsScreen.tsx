@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Switch, Button, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTasks } from '../services/TaskContext';
@@ -11,17 +11,33 @@ const TaskDetailsScreen: React.FC = () => {
     const route = useRoute();
     const navigation = useNavigation();
 
-    const { id } = route.params as { id?: string };  // get task ID from route params
+    const { taskId: id } = route.params as { taskId?: string };  // get task ID from route params
     const { tasks, setTasks } = useTasks();
     const task = tasks.find(t => t.id === id);
-    const isNew = !task;    // check if the task is new, otherwise it is being edited
+    const isNew = !id || !tasks.find(t => t.id === id);    // check if the task is new, otherwise it is being edited
 
-    const [title, setTitle] = useState(task?.title || '');
-    const [description, setDescription] = useState(task?.description || '');
-    const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate);
-    const [repeat, setRepeat] = useState<"never" | "daily" | "weekly" | "monthly">(task?.repeat || 'never');
-    const [alertEnabled, setAlertEnabled] = useState(task?.alert ?? false);
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [repeat, setRepeat] = useState<"never" | "daily" | "weekly" | "monthly">("never");
+    const [alertEnabled, setAlertEnabled] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [initialized, setInitialized] = useState(false);
+
+    useEffect(() => {
+        if (!initialized && id) {
+            const task = tasks.find(t => t.id === id);
+
+            if (task) {
+                setTitle(task.title);
+                setDescription(task.description!);
+                setDueDate(task.dueDate ? new Date(task.dueDate) : new Date());
+                setRepeat(task.repeat || "never");
+                setAlertEnabled(task.alert || false);
+                setInitialized(true);
+            }
+        }
+    }, [id, task]);
 
     const saveTask = () => {
         if (isNew){
