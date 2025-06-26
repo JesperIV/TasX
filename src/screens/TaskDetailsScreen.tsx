@@ -129,7 +129,10 @@ const TaskDetailsScreen: React.FC = () => {
             </TouchableOpacity>
             <Button
                 title="Clear Date"
-                onPress={() => setDueDate(null)}
+                onPress={() => {
+                    setDueDate(null);
+                    setDueTime(undefined);
+                }}
                 disabled={!dueDate}
             />
             {showDatePicker && (
