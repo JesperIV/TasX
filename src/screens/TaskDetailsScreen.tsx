@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: 8,
         paddingHorizontal: 12,
-        paddingVertical: 12,
+        paddingVertical: 10,
         marginBottom: 10,
         shadowColor: "#000",
         shadowOpacity: 0.05,
@@ -320,7 +320,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: "#aaa",
         paddingHorizontal: 8,
-        paddingVertical: 2,
     },
 });
 
