@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routeParameters';
 import { useTasks } from '../services/TaskContext';
@@ -23,43 +23,55 @@ const HomeScreen: React.FC = () => {
         );
     };
 
-    const completedCount = tasks.filter(task => task.completed).length;
-
-    const clearCompletedTasks = () => {
-        if (completedCount === 0) {
-            Alert.alert("No completed tasks to clear.");
-            return;
-        };
-
-        Alert.alert(
-            "Clear Completed Tasks",
-            "Are you sure you want to remove all completed tasks? (${completedCount})",
-            [
-                { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Clear",
-                    style: "destructive",
-                    onPress: () => {
-                        setTasks(prev => prev.filter(task => !task.completed));
-                    },
-                },
-            ],
-            { cancelable: true }
-        );
-    };
-
     const renderTaskItem = ({ item }: { item: Task }) => (
         <TaskItem task={item} onToggle={toggleCompleted} />
     );
+
+    useLayoutEffect(() => {
+        const completedCount = tasks.filter(task => task.completed).length;
+
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    onPress={() => {
+                        if (completedCount === 0) {
+                            Alert.alert("No completed tasks", "There are no completed tasks to clear.");
+                            return;
+                        }
+
+                        Alert.alert(
+                            "Clear Completed Tasks",
+                            "Are you sure you want to clear all completed tasks?",
+                            [
+                                { text: "Cancel", style: "cancel" },
+                                { text: "Clear", style: "destructive", onPress: () => {
+                                    setTasks(prev => prev.filter(task => !task.completed));
+                                }},
+                            ],
+                            { cancelable: true }
+                        );
+                    }}
+                    disabled={completedCount === 0}
+                    style={[
+                        styles.headerClearButton,
+                        completedCount === 0 && styles.headerClearButtonDisabled
+                    ]}>
+                    <Text style={[
+                        styles.headerClearText,
+                        completedCount === 0 && styles.headerClearTextDisabled
+                    ]}>
+                        Clear Completed
+                    </Text>
+                </TouchableOpacity>
+            )
+        });
+    }, [navigation, tasks]);
 
     return (
         <SafeAreaView style={styles.container}>
             {/* <Text style={styles.header}>Tasks</Text> */}
             <View style={styles.topRow}>
                 <Text style={styles.header}>{tasks.length} Task{tasks.length > 1 ? "s" : ""} remaining</Text>
-                <TouchableOpacity onPress={clearCompletedTasks} style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear Completed</Text>
-                </TouchableOpacity>
             </View>
 
 
@@ -95,16 +107,22 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 10,
     },
-    clearButton: {
+    headerClearButton: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 6,
         backgroundColor: "#e0e0e0",
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
     },
-    clearButtonText: {
-        fontSize: 14,
-        fontWeight: "600",
+    headerClearButtonDisabled: {
+        backgroundColor: "#f0f0f0",
+    },
+    headerClearText: {
         color: "#333",
+        fontWeight: "600",
+        fontSize: 14,
+    },
+    headerClearTextDisabled: {
+        color: "#aaa",
     },
 });
 
