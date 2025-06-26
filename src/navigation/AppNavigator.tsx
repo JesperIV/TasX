@@ -14,7 +14,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const AppNavigator: React.FC = () => {
     return (
         <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Tasks" }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ title: "My Tasks" }} />
             <Stack.Screen name="Details" component={TaskDetailsScreen} options={{ title: "Task Details" }} />
         </Stack.Navigator>
     );

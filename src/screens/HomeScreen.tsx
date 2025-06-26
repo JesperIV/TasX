@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routeParameters';
@@ -23,6 +23,31 @@ const HomeScreen: React.FC = () => {
         );
     };
 
+    const completedCount = tasks.filter(task => task.completed).length;
+
+    const clearCompletedTasks = () => {
+        if (completedCount === 0) {
+            Alert.alert("No completed tasks to clear.");
+            return;
+        };
+
+        Alert.alert(
+            "Clear Completed Tasks",
+            "Are you sure you want to remove all completed tasks? (${completedCount})",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Clear",
+                    style: "destructive",
+                    onPress: () => {
+                        setTasks(prev => prev.filter(task => !task.completed));
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
     const renderTaskItem = ({ item }: { item: Task }) => (
         <TaskItem task={item} onToggle={toggleCompleted} />
     );
@@ -30,6 +55,14 @@ const HomeScreen: React.FC = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* <Text style={styles.header}>Tasks</Text> */}
+            <View style={styles.topRow}>
+                <Text style={styles.header}>{tasks.length} Task{tasks.length > 1 ? "s" : ""} remaining</Text>
+                <TouchableOpacity onPress={clearCompletedTasks} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear Completed</Text>
+                </TouchableOpacity>
+            </View>
+
+
             <FlatList
                 data={tasks}
                 renderItem={renderTaskItem}
@@ -56,6 +89,22 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingBottom: 20
+    },
+    topRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
+    clearButton: {
+        backgroundColor: "#e0e0e0",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+    },
+    clearButtonText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#333",
     },
 });
 
