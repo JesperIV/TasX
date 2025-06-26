@@ -119,22 +119,25 @@ const TaskDetailsScreen: React.FC = () => {
             />
 
             <Text style={styles.label}>Due Date</Text>
-            <TouchableOpacity
-                style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
-            >
-                <Text style={styles.dateButtonText}>
-                    {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date'}
-                </Text>
-            </TouchableOpacity>
-            <Button
-                title="Clear Date"
-                onPress={() => {
-                    setDueDate(null);
-                    setDueTime(undefined);
-                }}
-                disabled={!dueDate}
-            />
+            <View style={styles.dateFieldWrapper}>
+                <TouchableOpacity
+                    style={styles.dateFieldTouch}
+                    onPress={() => setShowDatePicker(true)}
+                >
+                    <Text style={styles.dateButtonText}>
+                        {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date'}
+                    </Text>
+                </TouchableOpacity>
+                {dueDate && (
+                    <TouchableOpacity onPress={() => {
+                        setDueDate(null);
+                        setDueTime(undefined);
+                    }}>
+                        <Text style={styles.clearButton}>×</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
             {showDatePicker && (
                 <DateTimePicker
                     mode="date"
@@ -151,19 +154,22 @@ const TaskDetailsScreen: React.FC = () => {
             {dueDate && (
                 <>
                     <Text style={styles.label}>Due Time</Text>
-                    <TouchableOpacity
-                        style={styles.dateButton}
-                        onPress={() => setShowTimePicker(true)}
-                    >
-                        <Text style={styles.dateButtonText}>
-                            {dueTime ? dueTime : 'Set Due Time'}
-                        </Text>
-                    </TouchableOpacity>
-                    <Button
-                        title="Clear Time"
-                        onPress={() => setDueTime(undefined)}
-                        disabled={!dueTime}
-                    />
+                    <View style={styles.dateFieldWrapper}>
+                        <TouchableOpacity
+                            style={styles.dateFieldTouch}
+                            onPress={() => setShowTimePicker(true)}
+                        >
+                            <Text style={styles.dateButtonText}>
+                                {dueTime ? dueTime : 'Set Due Time'}
+                            </Text>
+                        </TouchableOpacity>
+                        {dueTime && (
+                            <TouchableOpacity onPress={() => setDueTime(undefined)}>
+                                <Text style={styles.clearButton}>×</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
 
                     {showTimePicker && (
                         <DateTimePicker
@@ -292,6 +298,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         textTransform: "uppercase",
+    },
+    dateFieldWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 12,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+    },
+    dateFieldTouch: {
+        flex: 1,
+    },
+    clearButton: {
+        fontSize: 20,
+        color: "#aaa",
+        paddingHorizontal: 8,
+        paddingVertical: 2,
     },
 });
 
