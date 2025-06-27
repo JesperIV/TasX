@@ -1,5 +1,6 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist"
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routeParameters';
@@ -10,20 +11,33 @@ import FloatingButton from '../components/FloatingButton';
 import TaskBay from '../components/TaskBay';
 import TaskItem from '../components/TaskItem';
 
+type BayDefinition = {
+    key: string;
+    title: string;
+    taskFilter: (tasks: Task[]) => Task[];
+};
+
+const bayDefinitions: BayDefinition[] = [
+    {
+        key: "general",
+        title: "General Tasks",
+        taskFilter: (tasks) => tasks.filter(task => !task.dueDate)
+    },
+    {
+        key: "deadline",
+        title: "Deadline Tasks",
+        taskFilter: (tasks) => tasks.filter(task => task.dueDate).sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+    },
+]
+
 const HomeScreen: React.FC = () => {
     type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
     const navigation = useNavigation<NavigationProp>();
 
     const { tasks, setTasks } = useTasks();
 
-    const generalTasks = tasks.filter(task => !task.dueDate);
-    const deadlineTasks = tasks.filter(task => task.dueDate).sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
-
-    const bays = [
-        { key: "general", title: "General Tasks", tasks: generalTasks },
-        { key: "deadline", title: "Deadline Tasks", tasks: deadlineTasks }
-    ]
-
+    const [bayOrder, setBayOrder] = useState(bayDefinitions);
+    
     const toggleCompleted = (id: string) => {
         setTasks(prev =>
             prev.map(task =>
@@ -31,6 +45,21 @@ const HomeScreen: React.FC = () => {
             )
         );
     };
+
+    useEffect(() => {
+        setBayOrder(prev => 
+            prev.map(bay => {
+                const definition = bayDefinitions.find(def => def.key === bay.key);
+                if (!definition) return bay;    // fallback for unknown bays
+
+                return {
+                    ...bay,
+                    tasks: definition.taskFilter(tasks)
+                };
+            })
+        );
+
+    }, [tasks]);
 
     useLayoutEffect(() => {
         const completedCount = tasks.filter(task => task.completed).length;
@@ -74,20 +103,32 @@ const HomeScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* <Text style={styles.header}>Tasks</Text> */}
             <View style={styles.topRow}>
                 <Text style={styles.header}>{tasks.length} Task{tasks.length > 1 ? "s" : ""} remaining</Text>
             </View>
 
+            <DraggableFlatList
+                data={bayOrder}
+                onDragEnd={({ data }) => {
+                    setTimeout(() => setBayOrder(data), 50);    // to prevent jittering
+                }}
+                renderItem={({ item, drag, isActive }: RenderItemParams<typeof bayOrder[0]>) => (
+                    <View>
+                        <TouchableOpacity
+                            onLongPress={drag}
+                            delayLongPress={25}
+                            style={styles.bayDragHandle}
+                        >
+                            <Text style={styles.bayDragText}>⇅ {item.title}</Text>
+                        </TouchableOpacity>
 
-            <FlatList
-                data={bays}
-                renderItem={({ item }) => (
-                    <TaskBay
-                        title={item.title}
-                        tasks={item.tasks}
-                        onToggle={toggleCompleted}
-                    />
+                        <TaskBay
+                            title={""}  // could be used for the item title, but we use the bay title instead
+                            tasks={tasks}
+                            taskFilter={item.taskFilter}
+                            onToggle={toggleCompleted}
+                        />
+                    </View>
                 )}
                 keyExtractor={(item) => item.key}
             />
@@ -134,6 +175,18 @@ const styles = StyleSheet.create({
     },
     headerClearTextDisabled: {
         color: "#aaa",
+    },
+    bayDragHandle: {
+        alignItems: "center",
+        paddingVertical: 6,
+        backgroundColor: "#f1f1f1",
+        borderRadius: 8,
+        marginBottom: 4,
+    },
+    bayDragText: {
+        fontSize: 16,
+        color: "#555",
+        fontWeight: "600",
     },
 });
 

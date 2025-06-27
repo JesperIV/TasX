@@ -6,15 +6,18 @@ import TaskItem from './TaskItem';
 type Props = {
     title: string;
     tasks: Task[];
+    taskFilter: (tasks: Task[]) => Task[];
     onToggle: (id: string) => void;
 };
 
-const TaskBay: React.FC<Props> = ({ title, tasks, onToggle }) => {
+const TaskBay: React.FC<Props> = ({ title, tasks, onToggle, taskFilter }) => {
+    const filteredTasks = taskFilter(tasks);
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={title ? styles.title : styles.noTitle}>{title}</Text>
             <FlatList
-                data={tasks}
+                data={filteredTasks}
                 renderItem={({ item }) => (
                     <TaskItem task={item} onToggle={onToggle} />
                 )}
@@ -40,6 +43,12 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         marginBottom: 12,
     },
+    noTitle: {
+        margin: 0,
+        padding: 0,
+        height: 0,
+        width: 0,
+    }
 });
 
 export default TaskBay;
